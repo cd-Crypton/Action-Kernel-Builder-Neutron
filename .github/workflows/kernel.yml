@@ -78,7 +78,7 @@ jobs:
     - name: Compress Kernel
       if: env.KERNEL_IS_OK == 'true'
       run: |
-        cd android/AnyKernel
+        cd android/AnyKernel3
         zip -r9 UPDATE-AnyKernel3-${{ env.BUILD_DATE }}.zip * -x .git README.md *placeholder
 
     - name: Upload to Release
