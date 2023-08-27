@@ -8,25 +8,27 @@ on:
         required: true
         default: 'master'
       KERNEL_TREE:
-        description: 'Kernel Tree URL'
+        description: 'Kernel tree URL'
         required: true
         default: 'https://github.com/cd-Crypton/android_kernel_realme_sm6225'
       KERNEL_BRANCH:
-        description: 'Kernel Tree Branch'
+        description: 'Kernel tree Branch'
         required: true
         default: 'android13-staging'
       KERNEL_DEFCONFIG:
-        description: 'Kernel Defconfig'
+        description: 'Kernel defconfig'
         required: true
         default: 'vendor/bengal-perf_defconfig'
+      KERNEL_IMAGE_NAME:
+        description: 'Kernel image name'
+        required: true
+        default: 'Image.gz'
 
 jobs:
   build:
     name: Build Kernel by ${{ github.actor }}
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
-    env:
-      MAKE: $(cat make.txt)
     permissions:
       contents: write
     steps:
@@ -53,7 +55,7 @@ jobs:
 
     - name: Set Properties
       run: |
-        echo "MAK=$(cat make.txt)" >> $GITHUB_ENV
+        echo "MAKE=$(cat make.txt)" >> $GITHUB_ENV
         echo "BUILD_DATE=$(TZ=Asia/Manila date +%Y%m%d)" >> $GITHUB_ENV
 
     - name: Build Kernel
@@ -66,19 +68,20 @@ jobs:
     - name: Check Kernel
       run: |
         cd android
-        if [ -f kernel/out/arch/arm64/boot/Image.gz ]; then
+        if [ -f kernel/out/arch/arm64/boot/${{ github.event.inputs.KERNEL_IMAGE_NAME }} ]; then
             echo "KERNEL_IS_OK=true" >> $GITHUB_ENV
-            git clone --depth=1 https://github.com/cd-Crypton/AnyKernel3.git -b FOR-ALL
-            cd kernel/out/arch/arm64/boot && cp -r Image.gz ${GITHUB_WORKSPACE}/android/AnyKernel3
         else
-            echo "Kernel out directory is empty."
+            echo "Kernel out directory is empty. Maybe(?) your name input did not exist at all. Try other kernel name."
             exit 1
         fi
 
     - name: Compress Kernel
       if: env.KERNEL_IS_OK == 'true'
       run: |
-        cd android/AnyKernel3
+        cd android
+        git clone --depth=1 https://github.com/cd-Crypton/AnyKernel3.git -b FOR-ALL
+        cd kernel/out/arch/arm64/boot && cp -r ${{ github.event.inputs.KERNEL_IMAGE_NAME }} ${GITHUB_WORKSPACE}/android/AnyKernel3
+        cd ${GITHUB_WORKSPACE}/android/AnyKernel3
         zip -r9 UPDATE-AnyKernel3-${{ env.BUILD_DATE }}.zip * -x .git README.md *placeholder
 
     - name: Upload to Release
@@ -86,9 +89,10 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          android/kernel/out/arch/arm64/boot/Image.gz
+          android/kernel/out/arch/arm64/boot/${{ github.event.inputs.KERNEL_IMAGE_NAME }}
           android/AnyKernel3/UPDATE-AnyKernel3-${{ env.BUILD_DATE }}.zip
         name: Proton Kernel Build | ${{ env.BUILD_DATE }}
         tag_name: ${{ github.run_id }}
         body: |
-          Test at your own risk.
+          * Kernel were built/compiled using proton-clang.
+          * Test at your own risk.
