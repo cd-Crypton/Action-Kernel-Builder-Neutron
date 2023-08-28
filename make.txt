@@ -1,1 +1,1 @@
-make O=out ARCH=arm64 LLVM=1 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi-
+make O=out ARCH=arm64 LLVM=1 CROSS_COMPILE=/home/runner/work/Proton/Proton/android/toolchains/proton-clang/bin/aarch64-linux-gnu- CROSS_COMPILE_COMPAT=/home/runner/work/Proton/Proton/android/toolchains/proton-clang/bin/arm-linux-gnueabi-
