@@ -24,74 +24,44 @@ on:
         required: true
         default: 'Image.gz'
 
-permissions:
-  contents: write
-
 jobs:
-  checkout:
-    name: Checkout
+  build:
+    name: Build Kernel by ${{ github.actor }}
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
+    permissions:
+      contents: write
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       
-  packages:
-    name: Setup Packages
-    needs: checkout
-    runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
-    steps:
-    - name: Setup Packages
+    - name: Packages
       run: |
         sudo apt-get update
-        sudo apt-get install libarchive-tools git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python2 python3
-
-  proton:
-    name: Setup Proton
-    needs: [checkout, packages]
-    runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
-    steps:
+        sudo apt-get install git ccache automake flex lzop bison gperf build-essential zip curl zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler python2 python3
+      
     - name: Setup Proton
       run: |
         mkdir -p android && cd android
-        git clone --depth=1 https://github.com/kdrag0n/proton-clang.git -b ${{ github.event.inputs.PROTON_RELEASE }} ./toolchains/proton-clang
+        git config --global advice.detachedHead false
+        git clone --depth=1 https://github.com/kdrag0n/proton-clang -b ${{ github.event.inputs.PROTON_RELEASE }} ./toolchains/proton-clang
 
-  kernel:
-    name: Clone Kernel Tree
-    needs: [checkout, packages, proton]
-    runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
-    steps:
     - name: Clone Kernel Tree
       run: |
         cd android
         git clone --depth=1 ${{ github.event.inputs.KERNEL_TREE }} -b ${{ github.event.inputs.KERNEL_BRANCH }} ./kernel
 
-  properties:
-    name: Set Properties
-    needs: [checkout, packages, proton, kernel]
-    runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
-    steps:
     - name: Set Properties
       run: |
         echo "MAKE=$(cat make.txt)" >> $GITHUB_ENV
         echo "BUILD_DATE=$(TZ=Asia/Manila date +%Y%m%d)" >> $GITHUB_ENV
 
-  build-kernel:
-    name: Build Kernel
-    needs: [checkout, packages, proton, kernel, properties]
-    runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
-    steps:
     - name: Build Kernel
       run: |
         PATH="${GITHUB_WORKSPACE}/android/toolchains/proton-clang/bin:/bin:$PATH"
         cd android/kernel
-        ${{ env.MAKE }} ${{ github.event.inputs.KERNEL_DEFCONFIG }}
-        ${{ env.MAKE }} -j"$(nproc --all)"
+        make ${{ env.MAKE }} ${{ github.event.inputs.KERNEL_DEFCONFIG }}
+        make ${{ env.MAKE }} -j"$(nproc --all)"
 
     - name: Check Kernel
       run: |
