@@ -6,7 +6,7 @@ on:
       PROTON_RELEASE:
         description: 'Release tag'
         required: true
-        default: 'clang-15'
+        default: 'master'
       KERNEL_TREE:
         description: 'Kernel tree URL'
         required: true
