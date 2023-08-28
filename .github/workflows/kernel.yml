@@ -6,7 +6,7 @@ on:
       PROTON_RELEASE:
         description: 'Release tag'
         required: true
-        default: 'master'
+        default: 'clang-15'
       KERNEL_TREE:
         description: 'Kernel tree URL'
         required: true
@@ -43,7 +43,7 @@ jobs:
     - name: Setup Proton
       run: |
         mkdir -p android && cd android
-        git clone --depth=1 https://github.com/kdrag0n/proton-clang -b ${{ github.event.inputs.PROTON_RELEASE }} ./toolchains/proton-clang
+        git clone --depth=1 https://gitlab.com/LeCmnGend/proton-clang -b ${{ github.event.inputs.PROTON_RELEASE }} ./toolchains/proton-clang
         cd toolchains/proton-clang
         curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman"
         bash antman --patch=glibc
