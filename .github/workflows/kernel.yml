@@ -38,6 +38,7 @@ jobs:
       
   packages:
     name: Setup Packages
+    needs: checkout
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     steps:
@@ -48,6 +49,7 @@ jobs:
 
   proton:
     name: Setup Proton
+    needs: [checkout, packages]
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     steps:
@@ -58,6 +60,7 @@ jobs:
 
   kernel:
     name: Clone Kernel Tree
+    needs: [checkout, packages, proton]
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     steps:
@@ -68,6 +71,7 @@ jobs:
 
   properties:
     name: Set Properties
+    needs: [checkout, packages, proton, kernel]
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     steps:
@@ -78,6 +82,7 @@ jobs:
 
   build-kernel:
     name: Build Kernel
+    needs: [checkout, packages, proton, kernel, properties]
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     steps:
