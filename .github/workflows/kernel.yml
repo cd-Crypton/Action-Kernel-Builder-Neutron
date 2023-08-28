@@ -56,9 +56,9 @@ jobs:
         echo "MAKE=$(cat make.txt)" >> $GITHUB_ENV
         echo "BUILD_DATE=$(TZ=Asia/Manila date +%Y%m%d)" >> $GITHUB_ENV
         cd android/kernel
-        echo "KERNEL_HEAD=$(git config --get remote.origin.url | sed -e 's/\.git$//g')/commit/$(git rev-parse HEAD)" >> $GITHUB_ENV
+        echo "KERNEL_SRC=$(git config --get remote.origin.url)" >> $GITHUB_ENV
         cd ../toolchains/proton-clang
-        echo "PROTON_HEAD=$(git config --get remote.origin.url | sed -e 's/\.git$//g')/commit/$(git rev-parse HEAD)" >> $GITHUB_ENV
+        echo "PROTON_SRC=$(git config --get remote.origin.url)" >> $GITHUB_ENV
 
     - name: Build Kernel
       run: |
@@ -98,7 +98,6 @@ jobs:
         tag_name: ${{ github.run_id }}
         body: |
          ### Notes
-          * Kernel were built/compiled using ${{ env.PROTON_HEAD }}.
-          * Compiled with latest changes in kernel source, link: ${{ env.KERNEL_HEAD }}.
+          * [Kernel](${{ env.KERNEL_SRC }}) were built/compiled using [proton-clang](${{ env.PROTON_SRC }}).
           * Test at your own risk.
           * Use kernel flasher or any custom recoveries to flash the compressed kernel zip file.
