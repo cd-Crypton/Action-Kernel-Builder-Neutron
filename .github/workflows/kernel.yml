@@ -43,7 +43,7 @@ jobs:
     - name: Setup Proton
       run: |
         mkdir -p android && cd android
-        git clone --depth=1 https://gitlab.com/LeCmnGend/proton-clang -b ${{ github.event.inputs.PROTON_RELEASE }} ./toolchains/proton-clang
+        git clone --depth=1 https://gitlab.com/LeCmnGend/proton-clang.git -b ${{ github.event.inputs.PROTON_RELEASE }} ./toolchains/proton-clang
 
     - name: Clone Kernel Tree
       run: |
