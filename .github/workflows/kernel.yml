@@ -98,6 +98,6 @@ jobs:
         tag_name: ${{ github.run_id }}
         body: |
          ### Notes
-          * [Kernel](${{ env.KERNEL_SRC }}) were built/compiled using [proton-clang](${{ env.PROTON_SRC }}).
+          * [Kernel](${{ env.KERNEL_SRC }}) were built/compiled using [proton-clang](${{ env.PROTON_SRC }}), ${{ github.event.inputs.PROTON_RELEASE }} release.
           * Test at your own risk.
           * Use kernel flasher or any custom recoveries to flash the compressed kernel zip file.
